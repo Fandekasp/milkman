@@ -120,7 +120,10 @@ class MilkTruck(object):
     def set_explicit_values(self, target, explicit_values):
         for k, v in explicit_values.iteritems():
             if not self.is_m2m(k):
-                setattr(target, k, v)
+                try:
+                    setattr(target, k, v)
+                except:
+                    target.k = v
 
     def set_m2m_explicit_values(self, target, explicit_values):
         for k, vs in explicit_values.iteritems():
@@ -135,7 +138,8 @@ class MilkTruck(object):
                 v = the_milkman.deliver(field.rel.to, **explicit_values)
             else:
                 v = self.generator_for(the_milkman.registry, field).next()
-            setattr(target, field.name, v)
+            if not getattr(target, field.name):
+                setattr(target, field.name, v)
 
     def set_m2m_fields(self, target, the_milkman, exclude, related_explicit_values):
         for field in self.fields_to_generate(
